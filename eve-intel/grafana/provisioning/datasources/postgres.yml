@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    database: eve_intel
+    user: eve_intel_user
+    secureJsonData:
+      password: changeme
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600
+    editable: true

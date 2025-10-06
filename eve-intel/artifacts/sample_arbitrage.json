@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-01-15T12:00:00Z",
+  "params": {
+    "min_ev_isk": 200000000,
+    "min_margin_pct": 5.0
+  },
+  "count": 3,
+  "opportunities": [
+    {
+      "item_id": 36,
+      "from_hub": 60004588,
+      "to_hub": 60008494,
+      "buy_price": 85.0,
+      "sell_price": 110.0,
+      "net_margin_pct": 16.12,
+      "ev_isk": 24180000.0,
+      "daily_liquidity": 1500000000.0,
+      "capital_required": 150000000.0,
+      "decay_score": 68.5
+    },
+    {
+      "item_id": 35,
+      "from_hub": 60011866,
+      "to_hub": 60003760,
+      "buy_price": 12.2,
+      "sell_price": 15.5,
+      "net_margin_pct": 14.75,
+      "ev_isk": 22125000.0,
+      "daily_liquidity": 1500000000.0,
+      "capital_required": 150000000.0,
+      "decay_score": 66.2
+    },
+    {
+      "item_id": 34,
+      "from_hub": 60003760,
+      "to_hub": 60008494,
+      "buy_price": 5.5,
+      "sell_price": 6.8,
+      "net_margin_pct": 9.27,
+      "ev_isk": 13905000.0,
+      "daily_liquidity": 1500000000.0,
+      "capital_required": 150000000.0,
+      "decay_score": 58.7
+    }
+  ]
+}

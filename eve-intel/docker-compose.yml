@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eve-intel-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-eve_intel}
+      POSTGRES_USER: ${POSTGRES_USER:-eve_intel_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eve_intel_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: eve-intel-clickhouse
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-eve_intel}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: eve-intel-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: eve-intel-api
+    environment:
+      ENV: ${ENV:-development}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-eve_intel_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-eve_intel}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-eve_intel_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-eve_intel}
+      REDIS_URL: redis://redis:6379/0
+      CLICKHOUSE_HOST: clickhouse
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: eve-intel-worker
+    environment:
+      ENV: ${ENV:-development}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-eve_intel_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-eve_intel}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-eve_intel_user}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-eve_intel}
+      REDIS_URL: redis://redis:6379/0
+      CLICKHOUSE_HOST: clickhouse
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: eve-intel-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-postgresql-datasource
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  clickhouse_data:
+  redis_data:
+  grafana_data:
