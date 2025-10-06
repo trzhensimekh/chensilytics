@@ -35,7 +35,7 @@ class ItemRepository:
                 "name": stmt.excluded.name,
                 "group_id": stmt.excluded.group_id,
                 "volume_m3": stmt.excluded.volume_m3,
-                "updated_at": datetime.now(datetime.UTC),
+                "updated_at": datetime.now(UTC),
             },
         )
         await self.session.execute(stmt)
@@ -71,7 +71,7 @@ class MarketRepository:
                 "name": stmt.excluded.name,
                 "region_id": stmt.excluded.region_id,
                 "system_id": stmt.excluded.system_id,
-                "updated_at": datetime.now(datetime.UTC),
+                "updated_at": datetime.now(UTC),
             },
         )
         await self.session.execute(stmt)
@@ -170,7 +170,7 @@ class ArbitrageRunRepository:
         stmt = (
             update(AnalyticsArbitrageRun)
             .where(AnalyticsArbitrageRun.run_id == run_id)
-            .values(completed_at=datetime.now(datetime.UTC), num_candidates=num_candidates, status="completed")
+            .values(completed_at=datetime.now(UTC), num_candidates=num_candidates, status="completed")
         )
         await self.session.execute(stmt)
 

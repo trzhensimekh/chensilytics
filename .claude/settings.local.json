@@ -6,7 +6,15 @@
       "Bash(poetry lock:*)",
       "Bash(poetry install:*)",
       "Bash(poetry run pytest:*)",
-      "Bash(poetry run python:*)"
+      "Bash(poetry run python:*)",
+      "Bash(timeout:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(curl:*)",
+      "Bash(docker-compose:*)",
+      "Bash(python:*)",
+      "Bash(start http://localhost:3000/d/eve-arbitrage/eve-market-arbitrage?orgId=1)",
+      "Bash(docker volume rm:*)"
     ],
     "deny": [],
     "ask": []
